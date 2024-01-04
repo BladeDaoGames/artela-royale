@@ -292,13 +292,13 @@ contract RRoyale is
         return true;
     }
 
-    function setUseVRF(bool _useVRF) public onlyOwner {
-        useVRF = _useVRF;
-    }
+    // function setUseVRF(bool _useVRF) public onlyOwner {
+    //     useVRF = _useVRF;
+    // }
 
-    function setVRFAddress(address _vrfCoordinator) public onlyOwner {
-        vrfCoordinator = _vrfCoordinator;
-    }
+    // function setVRFAddress(address _vrfCoordinator) public onlyOwner {
+    //     vrfCoordinator = _vrfCoordinator;
+    // }
 
     // ===== INTERNAL HELPER FUNCTIONS =====
     function _getCallingPlayerId(uint256 _roomId, address _player, bool _useBurner) internal view returns (uint8){
