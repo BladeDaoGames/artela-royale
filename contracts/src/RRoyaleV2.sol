@@ -7,9 +7,9 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 //import "./libraries/RoyaleBattleV1.sol";
-//import "./interfaces/IAutomataVRFCoordinator.sol";
+// import "./interfaces/IAutomataVRFCoordinator.sol";
 
-contract RRoyale is 
+contract RRoyaleV2 is 
     Initializable,
     PausableUpgradeable,
     OwnableUpgradeable,
@@ -616,6 +616,7 @@ contract RRoyale is
     // function testVRF() public view returns (uint256){
     //     return IAutomataVRFCoordinator(vrfCoordinator).getLatestRandomness();
     // }
+
 
     // ===== SETTER FUNCTIONS =====
     function _spawnItem(uint256 _roomId, uint8 itemIndex, uint160 _seed) internal returns (bool) {
