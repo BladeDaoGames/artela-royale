@@ -32,7 +32,7 @@ export const TxnSenderHOC = ({game, roomId}:{game:Phaser.Game, roomId:number}) =
         abi: chainConfig.royaleAbi,
         functionName: 'movePlayer',
     })
-
+    
     useEffect(()=>{
         if(playerInGame&&gamescene?.player1){
             //check if user is already assigned to player

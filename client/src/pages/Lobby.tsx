@@ -7,7 +7,6 @@ import { UtilsBar } from '../components/LobbyTable/UtilsBar';
 import { useRankingsValues } from '../hooks/useRankingsValues';
 
 const Lobby = () => {
-    console.log("lobby refresh.")
     //useRankingsValues();
     return (
         <div className="w-full md:w-[768px] mx-auto

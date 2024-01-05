@@ -8,6 +8,7 @@ import { chainConfig } from '../config/chainConfig';
 
 
 export const parseGameInfoObject= (roomInfo, roomId)=>{
+    //console.log("parsing game info object")
     return {
         _roomId: roomId,
         _creator: roomInfo?.gameCreator as string,
@@ -50,46 +51,35 @@ const useFetchRooms = () => {
         let newTotalRooms = 0;
         //1. get total rooms now
         async function fetchAndPopulateRooms(newTotalRooms:number){
-                
-            // simulate long loading time
-            // await new Promise(()=>{
-            //     setTimeout(()=>{console.log("timeout")},30000)
-            // })
-            // actual fetch
+
             if(import.meta.env.VITE_ROOMLOADMODE === 'loop'){
                 await Promise.all(
                     //Array.apply(null, Array(newTotalRooms))
                     Array(parseInt(import.meta.env.VITE_ROOMBATCHSIZE)).fill(null).map((_, i)=>newTotalRooms-1-i)
                         .reverse()
                         .map(
-                            //async (_, roomId)=>{
                             async (roomId)=>{ //using this for loading only some rooms
-                                return await readContract({
+                                return roomId>=0 ? await readContract({
                                     address: chainConfig.royaleContractAddress,
                                     abi: chainConfig.royaleAbi,
                                     functionName: 'games',
                                     args: [roomId]
                                 }).then((res) => {
-                                    // console.log("room info")
-                                    //console.log(res)
                                     return parseGameInfoObject(res, roomId)
                                     
-                                });
+                                }) : null
                                 }
                             )
                         ).then((res)=>{
                             setRooms(res)
                             setProgressBarValue(()=>100)
-                        })
+                        }).catch((e)=>{console.log("Error in Loop Room Retrieval",e)})
             }else{
                 await readContract({
                     address: chainConfig.royaleContractAddress,
                     abi: chainConfig.royaleAbi,
                     functionName: 'getGamesArray',
                 }).then((res)=>{
-                    // console.log("getting entire array: ")
-                    //console.log(res)
-
                     setRooms(res?.map((room, i)=>{
                         return parseGameInfoObject(room?.info, i)
                         })
@@ -106,9 +96,6 @@ const useFetchRooms = () => {
                 abi: chainConfig.royaleAbi,
                 functionName: 'getTotalGames',
             }).then((res)=>{
-                //set total rooms
-                // console.log("total rooms:")
-                // console.log(res)
                 newTotalRooms = parseInt(res as BigInt);
                 setTotalRooms(newTotalRooms);
 
