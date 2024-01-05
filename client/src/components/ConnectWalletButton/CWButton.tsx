@@ -81,7 +81,7 @@ const CWButton = () => {
             return
         
             // DO NOT DISCONNECT BECAUSE USERS WILL BE CONFUSED
-    },[devPk, connect, connectors, disconnect, burnerKey, 
+    },[devPk, connect, connectors, burnerKey, 
         address, isConnected, burnerIsConnected])
 
     useEffect(()=>{
@@ -93,7 +93,7 @@ const CWButton = () => {
         // just connect everytime
         handleConnect();
 
-    },[burnerKeyRegisteredFlagCount, handleConnect, isConnected])
+    },[handleConnect, isConnected])
 
     return useMemo(()=>(
         <div className="flex flex-row flex-nowrap
