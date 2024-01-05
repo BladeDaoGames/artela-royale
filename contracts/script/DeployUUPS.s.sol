@@ -25,7 +25,7 @@ contract DeployUUPS is Script {
         // wrap in ABI to support easier calls
         wrappedProxyV1 = RRoyale(address(proxy));
         //implementationV1.initialize();
-        wrappedProxyV1.initialize(msg.sender);
+        wrappedProxyV1.initialize();
 
         //set vrf contract address
         //wrappedProxyV1.setVRFAddress(0xbDAF40FbfEA4596f129bD11d273c3Eb64d3B4c62);

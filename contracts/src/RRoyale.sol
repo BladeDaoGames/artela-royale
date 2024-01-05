@@ -20,12 +20,12 @@ contract RRoyale is
     uint8 public constant MAP_HEIGHT = 10;
     uint8 public constant TILE_COUNT = MAP_WIDTH * MAP_HEIGHT;
     uint16 public starting_FT = 100;
-    address public burnerWallet;
-    bool public useBurnerWallet = false;
+    // address public burnerWallet;
+    // bool public useBurnerWallet = false;
     uint8 public houseFee = 2;
-    bool public useVRF = false;
-    address public vrfCoordinator;
-    bool spawnDefault = true;
+    //bool public useVRF = false;
+    //address public vrfCoordinator;
+    //bool spawnDefault = true;
     
 
     //array of all game rooms
@@ -33,6 +33,9 @@ contract RRoyale is
     //RoyaleBattleV1.GameRoom[] public games;
     mapping(address => uint256) public playerInGame; //track player
     mapping(address => UserStats) public userStats;
+
+    mapping(address => bool) public admins;
+
     RankingRow[10] public top10Earned;
     RankingRow[10] public top10Wins;
     enum Dir { DOWN, LEFT, UP, RIGHT }
@@ -178,12 +181,17 @@ contract RRoyale is
         _;
     }
 
-    modifier allowedToUseBurner(bool _useBurner) {
-        if(_useBurner){
-            require(useBurnerWallet && burnerWallet == msg.sender, "E17");
-        }
+    modifier onlyAdmin() {
+        require(admins[msg.sender], "E12");
         _;
     }
+
+    // modifier allowedToUseBurner(bool _useBurner) {
+    //     if(_useBurner){
+    //         require(useBurnerWallet && burnerWallet == msg.sender, "E17");
+    //     }
+    //     _;
+    // }
 
 
     event GameCreated(uint256 indexed _roomId, address indexed _creator);
@@ -213,16 +221,17 @@ contract RRoyale is
 
 
     // PROXY FUNCTIONS
-    function initialize(address _burnerWallet) public initializer {
+    function initialize() public initializer {
+    //function initialize(address _burnerWallet) public initializer {
         __Pausable_init();
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
-        burnerWallet = _burnerWallet;
+        //burnerWallet = _burnerWallet;
         games.push(); //pad with a dummy game
         games[0].info.hasEnded = true; // set dummy game to end
         starting_FT = 100;
         houseFee = 2;
-        spawnDefault = true;
+        //spawnDefault = true;
     }
 
     function _authorizeUpgrade(address newImplementation)
@@ -237,34 +246,34 @@ contract RRoyale is
     // }
 
     // ADMIN FUNCTIONS
-    function setUseBurnerWallet(bool _useBurnerWallet) public onlyOwner {
-        useBurnerWallet = _useBurnerWallet;
-    }
+    // function setUseBurnerWallet(bool _useBurnerWallet) public onlyOwner {
+    //     useBurnerWallet = _useBurnerWallet;
+    // }
 
-    function setBurnerWallet(address _burnerWallet) public onlyOwner {
-        burnerWallet = _burnerWallet;
-    }
+    // function setBurnerWallet(address _burnerWallet) public onlyOwner {
+    //     burnerWallet = _burnerWallet;
+    // }
 
-    function togglePause() public onlyOwner {
+    function togglePause() public onlyAdmin {
         paused() ? _unpause() : _pause();
     }
 
-    function setHouseFee(uint8 _houseFee) public onlyOwner {
+    function setHouseFee(uint8 _houseFee) public onlyAdmin {
         houseFee = _houseFee;
     }
 
-    function setSpawnDefault(bool _spawnDefault) public onlyOwner {
-        spawnDefault = _spawnDefault;
-    }
+    // function setSpawnDefault(bool _spawnDefault) public onlyOwner {
+    //     spawnDefault = _spawnDefault;
+    // }
 
-    function setStartingFT(uint16 _startingFT) public onlyOwner {
+    function setStartingFT(uint16 _startingFT) public onlyAdmin {
         starting_FT = _startingFT;
     }
 
     //TODO: add admin move player. (can do using burner)
     //TODO: add admin spawn item. 
     //TODO: add admin end game.
-    function adminBootAll(uint256 _roomId) public onlyOwner returns(bool){
+    function adminBootAll(uint256 _roomId) public onlyAdmin returns(bool){
         _returnFundsToAll(_roomId);
         _bootAllPlayers(_roomId);
         games[_roomId].info.gameAbandoned = true;
@@ -272,22 +281,22 @@ contract RRoyale is
         return true;
     }
 
-    function adminTransferFunds(uint256 _amount, address _to) public onlyOwner returns(bool){
+    function adminTransferFunds(uint256 _amount, address _to) public onlyAdmin returns(bool){
         (bool sent, ) = payable(_to).call{value: _amount}("");
         return(sent);
     }
 
-    function adminSetPlayerInGame(address _player, uint256 _roomId) public onlyOwner returns(bool){
+    function adminSetPlayerInGame(address _player, uint256 _roomId) public onlyAdmin returns(bool){
         playerInGame[_player] = _roomId;
         return true;
     }
 
-    function adminSetPlayerGamePosition(uint256 _roomId, uint8 _playerIndex, uint8 _position) public onlyOwner returns(bool){
+    function adminSetPlayerGamePosition(uint256 _roomId, uint8 _playerIndex, uint8 _position) public onlyAdmin returns(bool){
         games[_roomId].positions[_playerIndex] = _position;
         return true;
     }
 
-    function adminSpawnPlayer(uint256 _roomId, uint8 _playerIndex) public onlyOwner returns(bool){
+    function adminSpawnPlayer(uint256 _roomId, uint8 _playerIndex) public onlyAdmin returns(bool){
         _spawnPlayer(_roomId, _playerIndex);
         return true;
     }
@@ -911,7 +920,7 @@ contract RRoyale is
         whenNotPaused 
         gameNotStarted(_roomId)
         playerIsInGame(_roomId, _player, _useBurner)
-        allowedToUseBurner(_useBurner)
+        //allowedToUseBurner(_useBurner)
         returns (bool)
     {
         //get player id
@@ -928,7 +937,7 @@ contract RRoyale is
         external 
         whenNotPaused 
         playerIsInGame(_roomId, _player, _useBurner)
-        allowedToUseBurner(_useBurner)
+        //allowedToUseBurner(_useBurner)
         returns (bool)
     {
         // get player id
@@ -1026,7 +1035,7 @@ contract RRoyale is
         gameNotAbandoned(_roomId)
         playerIsInGame(_roomId, _player, _useBurner)
         playerIsAlive(_roomId,_player, _useBurner)
-        allowedToUseBurner(_useBurner)
+        //allowedToUseBurner(_useBurner)
         returns (bool) 
     {
         // get player id
