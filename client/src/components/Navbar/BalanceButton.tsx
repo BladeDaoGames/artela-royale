@@ -7,11 +7,11 @@ export const BalanceButton = () => {
     const { address, isConnected } = useAccount()
     const { data, isError, isLoading } = useBalance({address, watch: true})
     const { chain, chains } = useNetwork()
-    const { burnerKey, burnerAddress, updateBurnerKey} = useBurnerKey();
+    const { burnerKey, burnerAddress} = useBurnerKey();
     const hasBurnerKey = burnerKey !==null
     const usingBurner = hasBurnerKey && (
         address?.toLowerCase()==burnerAddress?.toLowerCase()) && isConnected
-
+        
     return useMemo(()=>(
         <div className={`text-sm font-medium   
             ${(usingBurner && parseInt(data?.formatted)==0)?"md:bg-palered text-white":
@@ -20,7 +20,7 @@ export const BalanceButton = () => {
             `}>
                 {
                 (!isConnected || chain?.id != chainConfig.chaindetails?.id)?"Wrong Network":
-                (usingBurner && parseInt(data?.formatted)==0)?"U have 0 $BLADE in burner. Click here for faucet!":
+                (usingBurner && parseInt(data?.formatted)==0)?"0 $ART. Click here for faucet!":
                 `${chain?.nativeCurrency.symbol??"Balance"}: ${
                     data?.formatted?parseFloat(data?.formatted).toFixed(3):"0"
                     }`
