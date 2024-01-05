@@ -209,6 +209,7 @@ contract RRoyale is
 
     event PlayerMoved(uint256 _roomId, address _player, uint8 _destinationTile);
     event PlayerKilled(uint256 _roomId, address _player);
+    event PlayerKilledPlayer(uint256 _roomId, address _aggressor, address _victim);
 
     event GameEnded(uint256 indexed _roomId, address indexed _winner);
     event RewardSent(uint256 indexed _roomId, address indexed _winner, uint256 indexed _reward);
@@ -769,11 +770,13 @@ contract RRoyale is
         if (_getBattleResults(_roomId, playerIndex, occupantIndex) == playerIndex) {
             // kill occupant
             _killPlayer(_roomId, occupantIndex);
+            emit PlayerKilledPlayer(_roomId, games[_roomId].playerIds[playerIndex], games[_roomId].playerIds[occupantIndex]);
             // move player to new tile
             _movePlayerToTileWithoutDying(_roomId, playerIndex, newPosition);
             return playerIndex;
         } else {
             _killPlayer(_roomId, playerIndex);
+            emit PlayerKilledPlayer(_roomId, games[_roomId].playerIds[occupantIndex], games[_roomId].playerIds[playerIndex]);
             return occupantIndex;
         }
     }
