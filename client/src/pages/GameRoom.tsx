@@ -215,14 +215,18 @@ const GameRoom = () => {
     const unwatch = watchReadContracts(contractCallConfig, (data_)=>{
       // refreshes each time chain state changes
       console.log("chain state refreshed.")
-      if(import.meta.env.VITE_ENV=="dev")console.log(data_)
+      //if(import.meta.env.VITE_ENV=="dev")console.log(data_)
 
       // gameinfo data
       if(data_[0]?.status=="success"){
+        console.log("game info data success")
+        console.log(data_[0]?.result)
         setGameInfo({...data_[0]?.result,
           minStake: parseFloat(formatEther(data_[0]?.result?.minStake??0)),
           totalStaked: parseFloat(formatEther(data_[0]?.result?.totalStaked??0))
         })
+      }else{
+        console.log("game info data retrieve failed")
       }
 
       //playerIds data

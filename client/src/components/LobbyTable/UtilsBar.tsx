@@ -62,8 +62,6 @@ export const UtilsBar = () => {
         }
     }, [data?.[3]?.result])
 
-    console.log("user stats")
-    console.log(userStats)
     const getRoomIdInput = () =>{
         const input = document.getElementById("room-router") as HTMLInputElement;
         if(input){
