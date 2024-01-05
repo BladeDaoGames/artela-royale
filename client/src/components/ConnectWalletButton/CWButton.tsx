@@ -1,13 +1,12 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useConnect } from 'wagmi';
 import { addressShortener } from '../../utils/addressShortener';
 
-import { createWalletClient, http, publicActions, toHex } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
-import {InjectedConnector} from '@wagmi/core';
+import { createWalletClient, http, publicActions } from 'viem';
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts';
 import { MockConnector } from 'wagmi/connectors/mock';
 
-import {createDevPrivateKey, createBurnerKeyRegisteredFlagCount} from '../../atoms';
+import {createDevPrivateKey } from '../../atoms';
 import { useAtomValue } from 'jotai';
 import { supportedChains } from '../../config/supportedChains';
 import { chainConfig } from '../../config/chainConfig';
@@ -19,9 +18,7 @@ import { toast } from 'react-hot-toast';
 const CWButton = () => {
     const { address, isConnected } = useAccount()
     const { connect, connectors } = useConnect()
-    const { disconnect } = useDisconnect()
-    const burnerKeyRegisteredFlagCount = useAtomValue(createBurnerKeyRegisteredFlagCount)
-    const { burnerKey, burnerAddress, updateBurnerKey} = useBurnerKey();
+    const { burnerKey, burnerAddress, updateBurnerKey } = useBurnerKey();
     const burnerIsConnected = (address?.toLowerCase()==burnerAddress?.toLowerCase())&&(isConnected)
     const shortAddress = addressShortener(address as string)
 
@@ -52,6 +49,8 @@ const CWButton = () => {
             // if burner is already connected (edge case)
             if (burnerIsConnected) return
 
+            // if burnerKey not created, create it
+            burnerKey==null ? updateBurnerKey(()=>generatePrivateKey()): null;
             //if burner wallet available, use burner to connect
             if(burnerKey !==null){
                 const viemAccount = privateKeyToAccount(burnerKey) 
@@ -74,16 +73,14 @@ const CWButton = () => {
                 connect({connector: cachedConnector})
                 return
             }
+
             
+            // COMMENTED OUT BECAUSE WE ARE GOING TO CONNEC TO BURNER WALLET ALL THE TIME
             // else connect normally with metamask injected
-            connect({ connector: connectors[0] })
+            // connect({ connector: connectors[0] })
             return
-        //} 
         
-        // else {
-        //     disconnect()
-        //     return
-        // }
+            // DO NOT DISCONNECT BECAUSE USERS WILL BE CONFUSED
     },[devPk, connect, connectors, disconnect, burnerKey, 
         address, isConnected, burnerIsConnected])
 
@@ -93,12 +90,8 @@ const CWButton = () => {
             handleConnect();
         }
 
-        // if they got registered flag from the signup then connect them automatically
-        //if(burnerKeyRegisteredFlagCount>0) handleConnect();
-
-        // in the end we decided just auto connect everyone if not connected
+        // just connect everytime
         handleConnect();
-        //!isConnected?handleConnect():null;
 
     },[burnerKeyRegisteredFlagCount, handleConnect, isConnected])
 
