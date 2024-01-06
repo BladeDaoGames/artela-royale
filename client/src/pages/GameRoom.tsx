@@ -128,8 +128,8 @@ const GameRoom = () => {
     listenToBlock: true,
   }
 
-  const playerId = playerIds.indexOf(address?.toLowerCase() as string)
-  const playerInGame = playerId>=0
+  const playerIndex = playerIds.indexOf(address?.toLowerCase() as string)
+  const playerInGame = playerIndex>=0
   const gamescene = game?.scene?.keys?.GameSceneFlat
 
   if(import.meta.env.VITE_ENV=="dev")console.log("game room render")
@@ -145,7 +145,7 @@ const GameRoom = () => {
     //executes if game is ready to be controlled
     if(gameSceneReady&&gamescene?.player1){
         
-        //ascertain userId 
+        //ascertain userId (getting user Number from Phaser side)
         const userEntity = gamescene?.user?.entity
         const userId = parseInt(userEntity?.substr(userEntity?.length - 1))??null
 
@@ -153,11 +153,11 @@ const GameRoom = () => {
         if(playerInGame){
           
           //assign user to player if player is not tagged to user
-          if(userId!=(playerId+1)){
-            gamescene?.setUserToPlayer(playerId)
+          if(userId!=(playerIndex+1)){
+            gamescene?.setUserToPlayer(playerIndex)
             // then set player to contract location to init yellow move guide
             //1st get the location in the contract
-            const userBoardPosition = piecePositions[playerId]
+            const userBoardPosition = piecePositions[playerIndex]
             const userGameTileXY = boardPositionToGameTileXY(userBoardPosition)
             gamescene?.contractSetPlayerLoc(
               userGameTileXY.x, userGameTileXY.y
@@ -171,10 +171,9 @@ const GameRoom = () => {
             if(p!=255){
               const TileXY = boardPositionToGameTileXY(p)
               //if piece is not player update position
-              if(i != playerId){
+              if(i != playerIndex){
                 gamescene?.setPiecePosition(i, TileXY.x, TileXY.y)
               
-
               // else if piece is player update only if returned position is same as intent
               // or update if it is first time refreshing
               }else if(playerInGame){

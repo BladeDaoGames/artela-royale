@@ -14,7 +14,7 @@ export const chainConfigs = {
     11820: {
         config: artela_testnet,
         contracts: {
-            royale:"0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+            royale:"0xA36a56aa909F71361DCba8F2534591E34A0888ad",
             multicall: "0xca11bde05977b3631167028862be2a173976ca11"
         }
     },

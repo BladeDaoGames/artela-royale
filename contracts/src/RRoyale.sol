@@ -20,13 +20,8 @@ contract RRoyale is
     uint8 public constant MAP_HEIGHT = 10;
     uint8 public constant TILE_COUNT = MAP_WIDTH * MAP_HEIGHT;
     uint16 public starting_FT = 100;
-    // address public burnerWallet;
-    // bool public useBurnerWallet = false;
+
     uint8 public houseFee = 2;
-    //bool public useVRF = false;
-    //address public vrfCoordinator;
-    //bool spawnDefault = true;
-    
 
     //array of all game rooms
     GameRoom[] public games;
@@ -34,7 +29,7 @@ contract RRoyale is
     mapping(address => uint256) public playerInGame; //track player
     mapping(address => UserStats) public userStats;
 
-    mapping(address => bool) public admins;
+    mapping(address => bool) private admins;
 
     RankingRow[10] public top10Earned;
     RankingRow[10] public top10Wins;
@@ -100,12 +95,6 @@ contract RRoyale is
         require(_addr != address(0), "Not valid address");
         _;
     }
-
-    //by: pauseUpgradeable -> whenNotPaused
-    // modifier worldFunctioning() {
-    //     require(!worldPaused, "E1");
-    //     _;
-    // }
 
     modifier enoughFunds(uint256 _fee, uint256 minStake) {
         require(msg.value >= minStake, "E2");
@@ -186,14 +175,6 @@ contract RRoyale is
         _;
     }
 
-    // modifier allowedToUseBurner(bool _useBurner) {
-    //     if(_useBurner){
-    //         require(useBurnerWallet && burnerWallet == msg.sender, "E17");
-    //     }
-    //     _;
-    // }
-
-
     event GameCreated(uint256 indexed _roomId, address indexed _creator);
     event PlayerJoined(uint256 _roomId, address _player);
     event PlayerSpawned(uint256 _roomId, address _player, uint8 _tile);
@@ -232,6 +213,7 @@ contract RRoyale is
         games[0].info.hasEnded = true; // set dummy game to end
         starting_FT = 100;
         houseFee = 2;
+        admins[msg.sender] = true;
         //spawnDefault = true;
     }
 
@@ -246,15 +228,6 @@ contract RRoyale is
     //     return _getImplementation();
     // }
 
-    // ADMIN FUNCTIONS
-    // function setUseBurnerWallet(bool _useBurnerWallet) public onlyOwner {
-    //     useBurnerWallet = _useBurnerWallet;
-    // }
-
-    // function setBurnerWallet(address _burnerWallet) public onlyOwner {
-    //     burnerWallet = _burnerWallet;
-    // }
-
     function togglePause() public onlyAdmin {
         paused() ? _unpause() : _pause();
     }
@@ -263,12 +236,12 @@ contract RRoyale is
         houseFee = _houseFee;
     }
 
-    // function setSpawnDefault(bool _spawnDefault) public onlyOwner {
-    //     spawnDefault = _spawnDefault;
-    // }
-
     function setStartingFT(uint16 _startingFT) public onlyAdmin {
         starting_FT = _startingFT;
+    }
+
+    function toggleSetAdmin(address _admin) public onlyOwner{
+        admins[_admin] = !admins[_admin];
     }
 
     //TODO: add admin move player. (can do using burner)
@@ -301,14 +274,6 @@ contract RRoyale is
         _spawnPlayer(_roomId, _playerIndex);
         return true;
     }
-
-    // function setUseVRF(bool _useVRF) public onlyOwner {
-    //     useVRF = _useVRF;
-    // }
-
-    // function setVRFAddress(address _vrfCoordinator) public onlyOwner {
-    //     vrfCoordinator = _vrfCoordinator;
-    // }
 
     // ===== INTERNAL HELPER FUNCTIONS =====
     function _getCallingPlayerId(uint256 _roomId, address _player, bool _useBurner) internal view returns (uint8){
@@ -379,20 +344,6 @@ contract RRoyale is
 
     function _getRandomUint256(uint160 _seed) internal view returns (uint256) {
 
-        //TODO: Use Alt Layer VRF here when available
-        // if(useVRF){
-        //     return uint256(
-        //         keccak256(
-        //             abi.encodePacked(
-        //                 block.timestamp, 
-        //                 block.prevrandao,
-        //                 _seed,
-        //                 IAutomataVRFCoordinator(vrfCoordinator).getLatestRandomness()
-        //                 )
-        //             )
-        //     );
-        // }
-
         return uint256(keccak256(
                     abi.encodePacked(
                         block.timestamp, 
@@ -403,7 +354,6 @@ contract RRoyale is
     }
 
     // Math Utils
-
     function _getItemFtDiff() internal view returns (int16){
         // get random number between -50 to 50
         int16 random = int16(int256(_getRandomUint256(888)%130))-65;
@@ -432,14 +382,6 @@ contract RRoyale is
     function _getRandomTile(uint160 _seed) internal view returns (uint8) {
         // get random number
         uint8 random = uint8(_getRandomUint256(_seed) % TILE_COUNT);
-        // uint8 random = uint8(
-        //         uint256(keccak256(
-        //             abi.encodePacked(
-        //                 block.timestamp, 
-        //                 block.prevrandao
-        //                 )
-        //                 )) % TILE_COUNT
-        //             );
         return random;
     }
 
@@ -623,9 +565,9 @@ contract RRoyale is
         return top10Wins;
     }
 
-    // function testVRF() public view returns (uint256){
-    //     return IAutomataVRFCoordinator(vrfCoordinator).getLatestRandomness();
-    // }
+    function checkAdmin(address _admin) public view returns (bool){
+        return admins[_admin];
+    }
 
     // ===== SETTER FUNCTIONS =====
     function _spawnItem(uint256 _roomId, uint8 itemIndex, uint160 _seed) internal returns (bool) {

@@ -7,6 +7,7 @@
     "dev": "anvil --host 0.0.0.0",
     "deploy": "forge build && forge create --rpc-url localhost:8545 --private-key $(grep PRIVATE_KEY .env | cut -d '=' -f2) src/RRoyale.sol:RRoyale",
     "deployproxy": "forge build && forge script script/DeployUUPS.s.sol:DeployUUPS --rpc-url http://localhost:8545 --broadcast --private-key $(grep PRIVATE_KEY .env | cut -d '=' -f2)",
+    "proxydeployartela": "forge build && forge script script/DeployUUPS.s.sol:DeployUUPS --rpc-url https://betanet-rpc1.artela.network --broadcast --private-key $(grep PRIVATE_KEY .env | cut -d '=' -f2)",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
