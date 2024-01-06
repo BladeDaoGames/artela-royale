@@ -2,18 +2,12 @@
 pragma solidity ^0.8.18;
 
 //import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-//import "./libraries/RoyaleBattleV1.sol";
-//import "./interfaces/IAutomataVRFCoordinator.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract RRoyale is 
-    Initializable,
-    PausableUpgradeable,
-    OwnableUpgradeable,
-    UUPSUpgradeable
+contract Royale is 
+    Pausable,
+    Ownable
 {
     uint8 public constant MAX_PLAYERS = 4;
     uint8 public constant MAP_WIDTH = 10;
@@ -197,36 +191,14 @@ contract RRoyale is
     event EarningsTopped(address indexed _player, uint256 _earnings);
     event WinningsTopped(address indexed _player, uint256 _winnings);
 
-    constructor() {
-        _disableInitializers();
-    }
-
-
-    // PROXY FUNCTIONS
-    function initialize() public initializer {
-    //function initialize(address _burnerWallet) public initializer {
-        __Pausable_init();
-        __Ownable_init(msg.sender);
-        __UUPSUpgradeable_init();
+    constructor() Ownable(msg.sender){
         //burnerWallet = _burnerWallet;
         games.push(); //pad with a dummy game
         games[0].info.hasEnded = true; // set dummy game to end
         starting_FT = 100;
         houseFee = 2;
         admins[msg.sender] = true;
-        //spawnDefault = true;
     }
-
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        virtual
-        override
-        onlyOwner
-    {}
-
-    // function getImplementation() external view returns (address) {
-    //     return _getImplementation();
-    // }
 
     function togglePause() public onlyAdmin {
         paused() ? _unpause() : _pause();

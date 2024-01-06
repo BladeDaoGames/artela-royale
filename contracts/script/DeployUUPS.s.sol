@@ -16,16 +16,21 @@ contract DeployUUPS is Script {
         RRoyale implementationV1 = new RRoyale();
         console.log("implementation is: ");
         console.log(address(implementationV1));
+        //vm.stopBroadcast();
 
         // deploy proxy contract and point it to implementation
+        //vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
         proxy = new UUPSProxy(address(implementationV1), "");
         console.log("proxy is: ");
         console.log(address(proxy));
+        //vm.stopBroadcast();
         
         // wrap in ABI to support easier calls
+        //vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
         wrappedProxyV1 = RRoyale(address(proxy));
         //implementationV1.initialize();
         wrappedProxyV1.initialize();
+        //vm.stopBroadcast();
 
         //set vrf contract address
         //wrappedProxyV1.setVRFAddress(0xbDAF40FbfEA4596f129bD11d273c3Eb64d3B4c62);
