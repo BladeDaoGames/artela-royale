@@ -2,7 +2,7 @@
 import { foundry, Chain } from "@wagmi/chains";
 
 export const artela_testnet = {
-    id: 11820,
+    id: 11822,
     name: 'Artlea Testnet',
     network: 'artela_testnet',
     nativeCurrency: {
@@ -13,11 +13,11 @@ export const artela_testnet = {
     rpcUrls: {
       default: {
         http: ['https://betanet-rpc1.artela.network'],
-        webSocket: ['wss://betanet-rpc1.artela.network'],
+        //webSocket: ['wss://betanet-rpc1.artela.network'],
       },
       public: {
         http: ['https://betanet-rpc1.artela.network'],
-        webSocket: ['wss://betanet-rpc1.artela.network'],
+        //webSocket: ['wss://betanet-rpc1.artela.network'],
       },
     },
 
@@ -28,5 +28,5 @@ export const artela_testnet = {
 } as const satisfies Chain
 
 // If you are deploying to chains other than anvil or Lattice testnet, add them here
-export const supportedChains: Chain[] = [foundry, artela_testnet];
+export const supportedChains: Chain[] = [artela_testnet, foundry];
 //export const supportedChains: MUDChain[] = [bladedao, foundry, latticeTestnet];

@@ -20,7 +20,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
 const config = createConfig({
     autoConnect: true,
     connectors: [
-      new InjectedConnector({chains}),
+      //new InjectedConnector({chains}),
       //cachedConnector,
     ],
     publicClient,
