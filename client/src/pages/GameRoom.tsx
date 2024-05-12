@@ -12,7 +12,7 @@ import GameStatusBar from '../components/GameRoom/GameStatusBar';
 import FTstatusBar from '../components/GameRoom/FTstatusBar';
 import StakedBar from '../components/GameRoom/StakedBar';
 import { useParams } from 'react-router-dom';
-import { watchReadContracts } from '@wagmi/core';
+import { watchReadContracts, watchContractEvent } from '@wagmi/core';
 import { chainConfig } from '../config/chainConfig';
 import { formatEther } from 'viem';
 import {useAtom, useSetAtom} from 'jotai';
@@ -24,6 +24,8 @@ import {boardPositionToGameTileXY} from '../utils/gameCalculations'
 
 import {subscribePhaserEvent, unsubscribePhaserEvent} from '../phaser/EventsCenter';
 import ChatWindow from '../components/ChatWindow/ChatWindow';
+
+import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin';
 
 
 const GameRoom = () => {
@@ -70,6 +72,14 @@ const GameRoom = () => {
       physics:{
           default: 'arcade',
           arcade:{ gravity: { y: 0 } }
+      },
+      plugins: {
+        scene: [{
+            key: 'rexUI',
+            plugin: UIPlugin,
+            mapping: 'rexUI'
+        },
+        ]
       },
       scene: [GameSceneFlat]
   }
@@ -261,10 +271,82 @@ const GameRoom = () => {
       }
 
     });
+
+    const unwatchPlayerKilledEvent = watchContractEvent({
+      address: chainConfig.royaleContractAddress,
+      abi: chainConfig.royaleAbi,
+      eventName: 'PlayerKilled',
+    }, (data_)=>{
+      const args = data_[0]?.args
+      if(args?._roomId==roomId){
+        try{
+          const playerKilledAddress = args?._player
+          const playerNumber = playerIds.indexOf(playerKilledAddress.toLowerCase())+1
+          const _roomId = parseInt(args?._roomId)
+          console.log("player killed event",playerKilledAddress)
+          console.log(_roomId, playerNumber)
+          //console.log(playerIds)
+        }catch(e){
+          console.log("player killed event error")
+          console.log(e)
+        }
+      }
+    });
+
+    const unwatchPlayerKilledVictimEvent = watchContractEvent({
+      address: chainConfig.royaleContractAddress,
+      abi: chainConfig.royaleAbi,
+      eventName: 'PlayerKilledPlayer',
+    }, (data_)=>{
+      const args = data_[0]?.args
+      if(args?._roomId==roomId){
+        try{
+          const aggressorAddress = args?._aggressor
+          const aggressorNumber = playerIds.indexOf(aggressorAddress.toLowerCase())+1
+          const victimAddress = args?._victim
+          const victimNumber = playerIds.indexOf(victimAddress.toLowerCase())+1
+          const _roomId = parseInt(args?._roomId)
+          console.log("player killed another player event",aggressorAddress, " killed ",victimAddress)
+          console.log(_roomId, aggressorNumber, victimNumber)
+          //console.log(playerIds)
+        }catch(e){
+          console.log("player k player event error")
+          console.log(e)
+        }
+      }
+    });
+
+    const unwatchItemOpened = watchContractEvent({
+      address: chainConfig.royaleContractAddress,
+      abi: chainConfig.royaleAbi,
+      eventName: 'ItemOpened',
+    }, (data_)=>{
+      const args = data_[0]?.args
+      if(args?._roomId==roomId){
+        try{
+          const playerAddress = args?._player
+          const playerNumber = playerIds.indexOf(playerAddress.toLowerCase())+1
+          const _roomId = parseInt(args?._roomId)
+          const itemPosition = args?._tilePos
+          const ftBuff = args?._ftDiff
+
+          console.log("item opened event",playerAddress, itemPosition, ftBuff)
+          console.log(args)
+        }catch(e){
+          console.log("item opened event error")
+          console.log(e)
+        }
+      }
+    });
+
+
     return ()=>{
       unwatch();
+      unwatchPlayerKilledEvent();
+      unwatchPlayerKilledVictimEvent();
+      unwatchItemOpened();
     }
-  }, [])
+  }, [playerIds])
 
   //suscribe to game events
   useEffect(()=>{
