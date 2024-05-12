@@ -182,6 +182,7 @@ contract Royale is
     event GamePaused(uint256 _roomId);
     event GameUnPaused(uint256 _roomId);
 
+    event ItemOpened(uint256 _roomId, address _player, uint8 _tilePos, int16 _ftDiff);
     event PlayerMoved(uint256 _roomId, address _player, uint8 _destinationTile);
     event PlayerKilled(uint256 _roomId, address _player);
     event PlayerKilledPlayer(uint256 _roomId, address _aggressor, address _victim);
@@ -663,7 +664,10 @@ contract Royale is
 
         // if playerNewFT is not 0, move player to the tile
         // NOTE: updatePlayerFT will update player position/board and alive if he is killed
-        uint16 finalFT = _updatePlayerFT(_roomId, playerIndex, _getItemFtDiff());
+        int16 ftDiff = _getItemFtDiff();
+        emit ItemOpened(_roomId, games[_roomId].playerIds[playerIndex], newPosition, ftDiff);
+        
+        uint16 finalFT = _updatePlayerFT(_roomId, playerIndex, ftDiff);
 
         if(finalFT != uint16(0)){_movePlayerToTileWithoutDying(_roomId, playerIndex, newPosition);
         } //else case is covered by updatePlayerFT
