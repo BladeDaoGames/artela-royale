@@ -35,6 +35,9 @@ dependencies:
   phaser:
     specifier: ^3.60.0
     version: 3.60.0
+  phaser3-rex-plugins:
+    specifier: ^1.80.3
+    version: 1.80.3
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -5221,7 +5224,6 @@ packages:
 
   /argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
-    dev: true
 
   /aria-hidden@1.2.3:
     resolution: {integrity: sha512-xcLxITLe2HYa1cnYnwCjkOO1PqUHQpozB8x9AR0OgWN2woOBi5kSDVxKfd0b7sb1hw5qFeJhXm9H1nu3xSfLeQ==}
@@ -6218,6 +6220,14 @@ packages:
       - encoding
     dev: false
 
+  /cross-fetch@4.0.0:
+    resolution: {integrity: sha512-e4a5N8lVvuLgAWgnCrLr2PP0YyDOTHa9H/Rj54dirp61qXnNq46m82bRhNqIA5VccJtWBvPTFRV3TtvHUKPB1g==}
+    dependencies:
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /cross-spawn@7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
@@ -7074,6 +7084,10 @@ packages:
     resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
     engines: {node: '>=6'}
     dev: true
+
+  /eventemitter3@3.1.2:
+    resolution: {integrity: sha512-tvtQIeLVHjDkJYnzf2dgVMxfuSGJeM/7UCG17TT4EumTfNtF+0nebF/4zWOIkCreAbtNqhGEboB6BWrwqNaw4Q==}
+    dev: false
 
   /eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
@@ -8247,6 +8261,20 @@ packages:
       ms: 2.1.2
     dev: false
 
+  /i18next-http-backend@2.5.1:
+    resolution: {integrity: sha512-+rNX1tghdVxdfjfPt0bI1sNg5ahGW9kA7OboG7b4t03Fp69NdDlRIze6yXhIbN8rbHxJ8IP4dzRm/okZ15lkQg==}
+    dependencies:
+      cross-fetch: 4.0.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /i18next@22.5.1:
+    resolution: {integrity: sha512-8TGPgM3pAD+VRsMtUMNknRz3kzqwp/gPALrWMsDnmC1mKqJwpWyooQRLMcbTwq8z8YwSmuj+ZYvc+xCuEpkssA==}
+    dependencies:
+      '@babel/runtime': 7.23.7
+    dev: false
+
   /iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
     engines: {node: '>=0.10.0'}
@@ -8811,7 +8839,6 @@ packages:
     hasBin: true
     dependencies:
       argparse: 2.0.1
-    dev: true
 
   /json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
@@ -9557,6 +9584,11 @@ packages:
       uid-safe: 2.1.5
     dev: true
 
+  /mustache@4.2.0:
+    resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
+    hasBin: true
+    dev: false
+
   /mute-stream@0.0.7:
     resolution: {integrity: sha512-r65nCZhrbXXb6dXOACihYApHw2Q6pV0M3V0PSxd74N0+D8nzAdEAITq2oAjA1jVnKI+tGvEBUpqiMh0+rW6zDQ==}
     dev: true
@@ -9570,6 +9602,7 @@ packages:
 
   /nan@2.18.0:
     resolution: {integrity: sha512-W7tfG7vMOGtD30sHoZSSc/JVYiyDPEyQVso/Zz+/uQd0B0L46gtC+pHha5FFMRpil6fm/AoEcRWyOVi4+E/f8w==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -10304,6 +10337,10 @@ packages:
       semver: 7.5.4
     dev: true
 
+  /papaparse@5.4.1:
+    resolution: {integrity: sha512-HipMsgJkZu8br23pW15uvo6sib6wne/4woLZPlFf3rpDyMe9ywEXUsuD7+6K9PRkJlVT51j/sCOYDKGGS3ZJrw==}
+    dev: false
+
   /parallel-transform@1.2.0:
     resolution: {integrity: sha512-P2vSmIu38uIlvdcU7fDkyrxj33gTUy/ABO5ZUbGowxNCopBq/OoD42bP4UmMrJoPyk4Uqf0mu3mtWBhHCZD8yg==}
     dependencies:
@@ -10412,6 +10449,20 @@ packages:
   /pend@1.2.0:
     resolution: {integrity: sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==}
     dev: true
+
+  /phaser3-rex-plugins@1.80.3:
+    resolution: {integrity: sha512-j/z588woCzkByrr+n1NiH4we1eDGnO/zzdO3S9XgE9b65MMA3phUUcx9GHuLvH1nWTGc025W0xG0bSFv7ekDSw==}
+    dependencies:
+      eventemitter3: 3.1.2
+      i18next: 22.5.1
+      i18next-http-backend: 2.5.1
+      js-yaml: 4.1.0
+      mustache: 4.2.0
+      papaparse: 5.4.1
+      webfontloader: 1.6.28
+    transitivePeerDependencies:
+      - encoding
+    dev: false
 
   /phaser@3.60.0:
     resolution: {integrity: sha512-IKUy35EnoEVcl2EmJ8WOyK4X8OoxHYdlhZLgRGpNrvD1fEagYffhVmwHcapE/tGiLgyrnezmXIo5RrH2NcrTHw==}
@@ -12848,6 +12899,10 @@ packages:
     resolution: {integrity: sha512-3pRGuxRF5gpuZc0W+EpwQRmCD7gRqcDOMt688KmdlDAgAyaB1XlN0zq2njfDNm44XVdIouE7pZ6GzbdyH47uIQ==}
     engines: {node: '>= 8'}
     dev: true
+
+  /webfontloader@1.6.28:
+    resolution: {integrity: sha512-Egb0oFEga6f+nSgasH3E0M405Pzn6y3/9tOVanv/DLfa1YBIgcv90L18YyWnvXkRbIM17v5Kv6IT2N6g1x5tvQ==}
+    dev: false
 
   /webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
