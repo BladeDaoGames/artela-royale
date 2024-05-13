@@ -184,8 +184,8 @@ contract Royale is
 
     event ItemOpened(uint256 _roomId, address _player, uint8 _tilePos, int16 _ftDiff);
     event PlayerMoved(uint256 _roomId, address _player, uint8 _destinationTile);
-    event PlayerKilled(uint256 _roomId, address _player);
-    event PlayerKilledPlayer(uint256 _roomId, address _aggressor, address _victim);
+    event PlayerKilled(uint256 _roomId, address _player, uint8 _tilePos);
+    event PlayerKilledPlayer(uint256 _roomId, address _aggressor, address _victim, uint8 _tilePos);
 
     event GameEnded(uint256 indexed _roomId, address indexed _winner);
     event RewardSent(uint256 indexed _roomId, address indexed _winner, uint256 indexed _reward);
@@ -596,12 +596,13 @@ contract Royale is
 
     function _killPlayer(uint256 _roomId, uint8 playerIndex) internal returns (uint8){
         games[_roomId].playerAlive[playerIndex] = false;
+        emit PlayerKilled(_roomId, games[_roomId].playerIds[playerIndex], games[_roomId].positions[playerIndex]);
         games[_roomId].board[games[_roomId].positions[playerIndex]].occupantId = 0; // remove player from tile
         games[_roomId].positions[playerIndex] = type(uint8).max; //reset position to null
         games[_roomId].playerFTs[playerIndex] = 0; //reset player ft for UI
         //Note: Player Index not reset to 0, as it is used to track player participation in UI
         games[_roomId].info.playersCount--;
-        emit PlayerKilled(_roomId, games[_roomId].playerIds[playerIndex]);
+        //emit PlayerKilled(_roomId, games[_roomId].playerIds[playerIndex]);
 
         //update winner stats
         userStats[games[_roomId].playerIds[playerIndex]].totalLosses++;
@@ -688,13 +689,13 @@ contract Royale is
         if (_getBattleResults(_roomId, playerIndex, occupantIndex) == playerIndex) {
             // kill occupant
             _killPlayer(_roomId, occupantIndex);
-            emit PlayerKilledPlayer(_roomId, games[_roomId].playerIds[playerIndex], games[_roomId].playerIds[occupantIndex]);
+            emit PlayerKilledPlayer(_roomId, games[_roomId].playerIds[playerIndex], games[_roomId].playerIds[occupantIndex], newPosition);
             // move player to new tile
             _movePlayerToTileWithoutDying(_roomId, playerIndex, newPosition);
             return playerIndex;
         } else {
             _killPlayer(_roomId, playerIndex);
-            emit PlayerKilledPlayer(_roomId, games[_roomId].playerIds[occupantIndex], games[_roomId].playerIds[playerIndex]);
+            emit PlayerKilledPlayer(_roomId, games[_roomId].playerIds[occupantIndex], games[_roomId].playerIds[playerIndex], newPosition);
             return occupantIndex;
         }
     }
