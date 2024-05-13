@@ -18,6 +18,13 @@ class GameSceneFlat extends Phaser.Scene {
     chest5!: Phaser.GameObjects.Sprite
     chest6!: Phaser.GameObjects.Sprite
     chest7!: Phaser.GameObjects.Sprite
+
+    toastDuration: number = 3000
+    toast1!: any
+    toast2!: any
+    toast3!: any
+    toast4!: any
+
     private gridControls!: GridControls
     private userGridPhysics!: GridPhysics
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
@@ -45,6 +52,11 @@ class GameSceneFlat extends Phaser.Scene {
 
         this.load.atlas('chest','/characters/chest.png', '/characters/chest.json')
 
+        this.load.scenePlugin({
+            key: 'rexuiplugin',
+            url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
+            sceneKey: 'rexUI'
+        });
         //this.cursors= this.input.keyboard.createCursorKeys()
     }
 
@@ -130,7 +142,182 @@ class GameSceneFlat extends Phaser.Scene {
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.input.off(Phaser.Input.Events.POINTER_UP)
         })
-        publishPhaserEvent("playersLoaded", "no data")
+        publishPhaserEvent("playersLoaded", "no data");
+
+        // Add event toasts
+        this.toast1 = this.rexUI.add.toast({
+            x: 120,
+            y: 120,
+
+            background: this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, 0x366ED8),//x,y, width, height
+            text: this.add.text(0, 0, '', {
+                fontSize: '14px',
+                fontFamily: 'Arial',
+            }),
+            space: {
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: 20,
+            },
+            duration: {
+                in: 200,
+                hold: this.toastDuration,
+                out: 200,
+            },
+        })
+        this.toast1.setDepth(10)
+        this.toast2 = this.rexUI.add.toast({
+            x: 120,
+            y: 120,
+
+            background: this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, 0xFACA15),//x,y, width, height
+            text: this.add.text(0, 0, '', {
+                fontSize: '14px',
+                fontFamily: 'Arial',
+                color: '#000000'
+            }),
+            space: {
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: 20,
+            },
+            duration: {
+                in: 200,
+                hold: this.toastDuration,
+                out: 200,
+            },
+        })
+        this.toast2.setDepth(10)
+        this.toast3 = this.rexUI.add.toast({
+            x: 120,
+            y: 120,
+
+            background: this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, 0xE2444B),//x,y, width, height
+            text: this.add.text(0, 0, '', {
+                fontSize: '14px',
+                fontFamily: 'Arial',
+            }),
+            space: {
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: 20,
+            },
+            duration: {
+                in: 200,
+                hold: this.toastDuration,
+                out: 200,
+            },
+        })
+        this.toast3.setDepth(10)
+        this.toast4 = this.rexUI.add.toast({
+            x: 120,
+            y: 120,
+
+            background: this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, 0x53C576),//x,y, width, height
+            text: this.add.text(0, 0, '', {
+                fontSize: '14px',
+                fontFamily: 'Arial',
+            }),
+            space: {
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: 20,
+            },
+            duration: {
+                in: 200,
+                hold: this.toastDuration,
+                out: 200,
+            },
+        })
+        this.toast4.setDepth(10)
+
+        //const canvasXY = this.ground?.tileToWorldXY(7,5)
+        // this.add.text(canvasXY.x, canvasXY.y, 'Create')
+        //     .setInteractive()
+        //     .on('pointerdown', function () {
+        //         //toast.backgroundChildren.pop()
+        //         //toast.backgroundChildren = this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, 0x006ED8)
+        //         //console.log()
+        //         const XYtile = this.scene.ground?.tileToWorldXY(7,9)//x min is 3, y min is 1, x max 7, y max 9
+        //         this.scene.toast1.setPosition(XYtile.x, XYtile.y)
+        //         this.scene.toast1.showMessage(
+        //             `🥷 Player ${1} 🔪 Killed --> 💀Player ${2}💀\n 🏁At position ${8}, ${8} 🏁`);
+        // })
+        
+        
+    }
+
+    announcePlayerKilled(player:number, x:number, y:number){
+
+        //x min is 2, y min is 1, x max 8, y max 9
+        x = x<2?2:x
+        x = x>8?8:x
+        y = y<1?1:y
+        y = y>9?9:y
+
+        const canvasXY = this.ground?.tileToWorldXY(x,y)
+
+        const toastDict = {
+            1: this.toast1,
+            2: this.toast2,
+            3: this.toast3,
+            4: this.toast4
+        }
+        toastDict[player].setPosition(canvasXY.x,canvasXY.y)
+        toastDict[player].setDepth(9)
+        toastDict[player].showMessage(
+            `💀 Player ${player} was Killed 💀\n 🏁At position ${x}, ${y} 🏁`
+        )
+
+    }
+
+    showPlayerKplayerToast(player:number, victim:number, x:number, y:number){
+        //x min is 3, y min is 1, x max 7, y max 9
+        x = x<3?3:x
+        x = x>7?7:x
+        y = y<1?1:y
+        y = y>9?9:y
+
+        const canvasXY = this.ground?.tileToWorldXY(x,y)
+
+        const toastDict = {
+            1: this.toast1,
+            2: this.toast2,
+            3: this.toast3,
+            4: this.toast4
+        }
+        toastDict[player].setPosition(canvasXY.x,canvasXY.y)
+        toastDict[player].setDepth(10)
+        toastDict[player].showMessage(
+            `🥷 Player ${player} 🔪 Killed --> 💀Player ${victim}💀\n 🏁At position ${x}, ${y} 🏁`
+        )
+
+    }
+
+    showToast(player:number, message:string, x:number, y:number){
+        // this toast is for item pickups
+
+        // adjust for overflow
+        //x min is 3, y min is 1, x max 8, y max 9
+        x = x<3?3:x
+        x = x>8?8:x
+        y = y<1?1:y
+        y = y>9?9:y
+        const canvasXY = this.ground?.tileToWorldXY(x,y)
+
+        const toastDict = {
+            1: this.toast1,
+            2: this.toast2,
+            3: this.toast3,
+            4: this.toast4
+        }
+        toastDict[player].setPosition(canvasXY.x,canvasXY.y)
+        toastDict[player].setDepth(8)
+        toastDict[player].showMessage(message)
     }
 
     setPiecePosition(pieceId:number, x:number, y:number){

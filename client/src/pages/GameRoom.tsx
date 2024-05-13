@@ -12,7 +12,7 @@ import GameStatusBar from '../components/GameRoom/GameStatusBar';
 import FTstatusBar from '../components/GameRoom/FTstatusBar';
 import StakedBar from '../components/GameRoom/StakedBar';
 import { useParams } from 'react-router-dom';
-import { watchReadContracts, watchContractEvent } from '@wagmi/core';
+import { watchReadContracts, watchContractEvent, watchReadContract } from '@wagmi/core';
 import { chainConfig } from '../config/chainConfig';
 import { formatEther } from 'viem';
 import {useAtom, useSetAtom} from 'jotai';
@@ -73,14 +73,14 @@ const GameRoom = () => {
           default: 'arcade',
           arcade:{ gravity: { y: 0 } }
       },
-      plugins: {
-        scene: [{
-            key: 'rexUI',
-            plugin: UIPlugin,
-            mapping: 'rexUI'
-        },
-        ]
-      },
+      // plugins: {
+      //   scene: [{
+      //       key: 'rexUI',
+      //       plugin: UIPlugin,
+      //       mapping: 'rexUI'
+      //   },
+      //   ]
+      // },
       scene: [GameSceneFlat]
   }
   const game = usePhaserGame(gameConfig);
@@ -97,12 +97,14 @@ const GameRoom = () => {
         abi: chainConfig.royaleAbi,
         functionName: 'getGameInfo',
         args: [roomId]
-      },{
-        address: chainConfig.royaleContractAddress,
-        abi: chainConfig.royaleAbi,
-        functionName: 'getPlayerIds',
-        args: [roomId]
-      },{
+      },
+      // {
+      //   address: chainConfig.royaleContractAddress,
+      //   abi: chainConfig.royaleAbi,
+      //   functionName: 'getPlayerIds',
+      //   args: [roomId]
+      // },
+      {
         address: chainConfig.royaleContractAddress,
         abi: chainConfig.royaleAbi,
         functionName: 'getPlayerFTs',
@@ -228,8 +230,8 @@ const GameRoom = () => {
 
       // gameinfo data
       if(data_[0]?.status=="success"){
-        console.log("game info data success")
-        console.log(data_[0]?.result)
+        //console.log("game info data success")
+        //console.log(data_[0]?.result)
         setGameInfo({...data_[0]?.result,
           minStake: parseFloat(formatEther(data_[0]?.result?.minStake??0)),
           totalStaked: parseFloat(formatEther(data_[0]?.result?.totalStaked??0))
@@ -239,39 +241,71 @@ const GameRoom = () => {
       }
 
       //playerIds data
-      if(data_[1]?.status=="success"){
-        setPlayerIds((data_[1].result as string[])?.map((a: string)=>{
-            return a?.toLocaleLowerCase()?? "0x0"
-        }))
-      }
+      // if(data_[1]?.status=="success"){
+      //   setPlayerIds((data_[1].result as string[])?.map((a: string)=>{
+      //       return a?.toLocaleLowerCase()?? "0x0"
+      //   }))
+      // }
 
       //playerFTs data
-      if(data_[2]?.status=="success"){
-        setPlayerFTs(data_[2].result)
+      if(data_[1]?.status=="success"){
+        setPlayerFTs(data_[1].result)
       }
 
       //piece positions data
-      if(data_[3]?.status=="success"){
-        setPiecePositions(data_[3].result)
+      if(data_[2]?.status=="success"){
+        setPiecePositions(data_[2].result)
       }
 
       //playerAlive data
+      if(data_[3]?.status=="success"){
+        setPlayerAliveStatus(data_[3].result)
+      }
+
+      //playerReadiness data
       if(data_[4]?.status=="success"){
-        setPlayerAliveStatus(data_[4].result)
+        setPlayerReadyStatus(data_[4].result)
       }
 
       //playerReadiness data
       if(data_[5]?.status=="success"){
-        setPlayerReadyStatus(data_[5].result)
-      }
-
-      //playerReadiness data
-      if(data_[6]?.status=="success"){
-        setPlayerPauseVote(data_[6].result)
+        setPlayerPauseVote(data_[5].result)
       }
 
     });
 
+    return ()=>{
+      unwatch();
+    }
+  }, [])
+
+  //only get for playerId states
+  useEffect(()=>{
+    console.log("init playerId listeners")
+
+    const unwatchPlayerIds = watchReadContract(
+      {
+      address: chainConfig.royaleContractAddress,
+      abi: chainConfig.royaleAbi,
+      functionName: 'getPlayerIds',
+      args: [roomId],
+      listenToBlock: true,
+      }, (data_)=>{
+
+        console.log("player Ids refreshed")
+        setPlayerIds((data_ as string[])?.map((a: string)=>{
+          return a?.toLocaleLowerCase()?? "0x0"
+        }))
+    })
+
+    return ()=>{
+      unwatchPlayerIds();
+    }
+  },[])
+
+  //get event data seperate from above useEffects
+  useEffect(()=>{
+    console.log("event data listeners")
     const unwatchPlayerKilledEvent = watchContractEvent({
       address: chainConfig.royaleContractAddress,
       abi: chainConfig.royaleAbi,
@@ -283,8 +317,11 @@ const GameRoom = () => {
           const playerKilledAddress = args?._player
           const playerNumber = playerIds.indexOf(playerKilledAddress.toLowerCase())+1
           const _roomId = parseInt(args?._roomId)
-          console.log("player killed event",playerKilledAddress)
-          console.log(_roomId, playerNumber)
+          const boardPosition = args?._tilePos
+          const tileXY = boardPositionToGameTileXY(boardPosition)
+          console.log("player killed event",playerKilledAddress, tileXY)
+          gamescene?.announcePlayerKilled(playerNumber, tileXY.x, tileXY.y)
+
           //console.log(playerIds)
         }catch(e){
           console.log("player killed event error")
@@ -305,9 +342,12 @@ const GameRoom = () => {
           const aggressorNumber = playerIds.indexOf(aggressorAddress.toLowerCase())+1
           const victimAddress = args?._victim
           const victimNumber = playerIds.indexOf(victimAddress.toLowerCase())+1
+          const boardPosition = args?._tilePos
+          const tileXY = boardPositionToGameTileXY(boardPosition)
           const _roomId = parseInt(args?._roomId)
-          console.log("player killed another player event",aggressorAddress, " killed ",victimAddress)
+          console.log("player killed another player event",aggressorAddress, " killed ",victimAddress, "at ", tileXY)
           console.log(_roomId, aggressorNumber, victimNumber)
+          gamescene?.showPlayerKplayerToast(aggressorNumber, victimNumber, tileXY.x, tileXY.y)
           //console.log(playerIds)
         }catch(e){
           console.log("player k player event error")
@@ -328,10 +368,14 @@ const GameRoom = () => {
           const playerNumber = playerIds.indexOf(playerAddress.toLowerCase())+1
           const _roomId = parseInt(args?._roomId)
           const itemPosition = args?._tilePos
+          const itemTileXY = boardPositionToGameTileXY(itemPosition)
           const ftBuff = args?._ftDiff
 
           console.log("item opened event",playerAddress, itemPosition, ftBuff)
-          console.log(args)
+
+          gamescene?.showToast(playerNumber, `Player${playerNumber} \n🎁 Opened chest at ${itemTileXY.x}, ${itemTileXY.y} 🎁 \ngained ${ftBuff<0?"💀":"💪🏼 +"}${ftBuff}FT`, 
+          itemTileXY.x, itemTileXY.y)
+
         }catch(e){
           console.log("item opened event error")
           console.log(e)
@@ -341,12 +385,11 @@ const GameRoom = () => {
 
 
     return ()=>{
-      unwatch();
       unwatchPlayerKilledEvent();
       unwatchPlayerKilledVictimEvent();
       unwatchItemOpened();
     }
-  }, [playerIds])
+  },[playerIds])
 
   //suscribe to game events
   useEffect(()=>{
